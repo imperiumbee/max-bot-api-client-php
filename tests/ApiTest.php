@@ -1667,12 +1667,14 @@ final class ApiTest extends TestCase
         $admins = [
             new ChatAdmin(101, [ChatAdminPermission::Write]),
             new ChatAdmin(202, [ChatAdminPermission::PinMessage]),
+            new ChatAdmin(303, [ChatAdminPermission::EditMessage, ChatAdminPermission::CanCall], 'SuperUser'),
         ];
 
         $expectedBody = [
             'admins' => [
                 ['user_id' => 101, 'permissions' => ['write'], 'alias' => null],
                 ['user_id' => 202, 'permissions' => ['pin_message'], 'alias' => null],
+                ['user_id' => 303, 'permissions' => ['edit_message', 'can_call'], 'alias' => 'SuperUser'],
             ],
         ];
         $rawResponse = ['success' => true];
