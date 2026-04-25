@@ -25,12 +25,10 @@ use BushlanovDev\MaxMessengerBot\Models\Attachments\Buttons\Reply\SendContactBut
 use BushlanovDev\MaxMessengerBot\Models\Attachments\Buttons\Reply\SendGeoLocationButton;
 use BushlanovDev\MaxMessengerBot\Models\Attachments\Buttons\Reply\SendMessageButton;
 use BushlanovDev\MaxMessengerBot\Models\Attachments\ContactAttachment;
-use BushlanovDev\MaxMessengerBot\Models\Attachments\DataAttachment;
 use BushlanovDev\MaxMessengerBot\Models\Attachments\FileAttachment;
 use BushlanovDev\MaxMessengerBot\Models\Attachments\InlineKeyboardAttachment;
 use BushlanovDev\MaxMessengerBot\Models\Attachments\LocationAttachment;
 use BushlanovDev\MaxMessengerBot\Models\Attachments\PhotoAttachment;
-use BushlanovDev\MaxMessengerBot\Models\Attachments\ReplyKeyboardAttachment;
 use BushlanovDev\MaxMessengerBot\Models\Attachments\ShareAttachment;
 use BushlanovDev\MaxMessengerBot\Models\Attachments\StickerAttachment;
 use BushlanovDev\MaxMessengerBot\Models\Attachments\VideoAttachment;
@@ -243,14 +241,6 @@ readonly class ModelFactory
     public function createAttachment(array $data): AbstractAttachment
     {
         $attachmentType = AttachmentType::tryFrom($data['type'] ?? '');
-        if ($attachmentType === AttachmentType::ReplyKeyboard
-            && isset($data['buttons']) && is_array($data['buttons'])) {
-            $data['buttons'] = array_map(
-                fn($rowOfButtons) => array_map([$this, 'createReplyButton'], $rowOfButtons),
-                $data['buttons'],
-            );
-        }
-
         if ($attachmentType === AttachmentType::InlineKeyboard
             && isset($data['payload']['buttons']) && is_array($data['payload']['buttons'])) {
             $data['payload']['buttons'] = array_map(
@@ -260,8 +250,6 @@ readonly class ModelFactory
         }
 
         return match ($attachmentType) {
-            AttachmentType::Data => DataAttachment::fromArray($data),
-            AttachmentType::Share => ShareAttachment::fromArray($data),
             AttachmentType::Image => PhotoAttachment::fromArray($data),
             AttachmentType::Video => VideoAttachment::fromArray($data),
             AttachmentType::Audio => AudioAttachment::fromArray($data),
@@ -269,8 +257,8 @@ readonly class ModelFactory
             AttachmentType::Sticker => StickerAttachment::fromArray($data),
             AttachmentType::Contact => ContactAttachment::fromArray($data),
             AttachmentType::InlineKeyboard => InlineKeyboardAttachment::fromArray($data),
-            AttachmentType::ReplyKeyboard => ReplyKeyboardAttachment::fromArray($data),
             AttachmentType::Location => LocationAttachment::fromArray($data),
+            AttachmentType::Share => ShareAttachment::fromArray($data),
             default => throw new LogicException('Unknown or unsupported attachment type: ' . ($data['type'] ?? 'none')),
         };
     }
